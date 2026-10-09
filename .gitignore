@@ -1,0 +1,25 @@
+# Python 缓存与测试产物
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+coverage.xml
+
+# 本地环境与编辑器
+.venv/
+venv/
+.env
+.env.*
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# 本地日志、临时文件和备份
+log/
+logs/
+*.log
+*.log.*
+*.tmp
+*.bak
+*.orig
