@@ -1,4 +1,6 @@
-# AstrBot OpenCode Go Session Header
+# OpenCode 会话请求头注入
+
+> 插件 ID：`astrbot_plugin_opencode_session_header`
 
 为 OpenCode Zen / OpenCode Go 请求自动补充 `x-opencode-session` 请求头的 AstrBot 插件。
 
