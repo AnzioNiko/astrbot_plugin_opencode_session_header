@@ -2,5 +2,5 @@ name: astrbot_plugin_opencode_session_header
 display_name: OpenCode 会话请求头注入
 author: AstrBot Plugin Developer
 description: 为指向 https://opencode.ai/zen/go/v1 的 LLM 请求自动注入 x-opencode-session 请求头。正常情况下根据 AstrBot 会话 ID 确定性推导 UUID；上下文缺少会话 ID 时，可在插件设置中选择进程内随机 UUID 或用户指定的固定 UUID。若请求已携带有效的 x-opencode-session，则保留原值。仅匹配 OpenCode Go 目标端点，不影响其它 API 端点。
-version: 1.0.0
+version: 1.1.0
 repo: https://github.com/AnzioNiko/astrbot_plugin_opencode_session_header

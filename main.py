@@ -253,13 +253,34 @@ class OpenCodeSessionHeaderPlugin(Star):
             self._log_global_skip(f"端点不匹配 ({url})", url)
             return
 
-        # 如果更上游已经提供了请求头，保留该值，避免覆盖调用方指定的 Session。
+        # create() 包装器可能已把插件生成的请求头放入 extra_headers；
+        # 到达这里时它已存在。区分插件自己的值与调用方预先提供的值，
+        # 避免把同一条请求同时记成“注入成功”和“已有请求头”。
         try:
             existing_header = request.headers.get(self.header_name)
         except Exception:
             existing_header = None
         if existing_header and str(existing_header).strip():
-            self._log_global_skip(f"请求已包含 {self.header_name}，保留现有值", url)
+            existing_value = str(existing_header).strip()
+            expected_header = self._request_header_var.get()
+            plugin_value = None
+            if (
+                expected_header is not None
+                and expected_header[0].lower() == self.header_name.lower()
+            ):
+                plugin_value = expected_header[1]
+
+            if plugin_value is not None and existing_value == plugin_value:
+                if self.log_injection:
+                    self._emit(
+                        "INFO",
+                        "[opencode_session_header] 请求头已就绪："
+                        f"{self.header_name}={existing_value}（插件生成） (url={url})",
+                    )
+            else:
+                self._log_global_skip(
+                    f"请求已包含 {self.header_name}，保留现有值", url
+                )
             return
 
         sid = _CURRENT_SESSION_ID.get()
@@ -280,7 +301,7 @@ class OpenCodeSessionHeaderPlugin(Star):
         if self.log_injection:
             self._emit(
                 "INFO",
-                "[opencode_session_header] 已修改请求头：将注入 "
+                "[opencode_session_header] 请求头注入成功："
                 f"{self.header_name}={uuid_str} (来源={source}, sid={sid or '<缺失>'}, url={url})",
             )
 
@@ -694,13 +715,8 @@ class OpenCodeSessionHeaderPlugin(Star):
             )
             return
 
-        uuid_str, source = self._resolve_session_uuid(sid or None)
+        uuid_str, _ = self._resolve_session_uuid(sid or None)
         self._request_header_var.set((self.header_name, uuid_str))
-        self._emit(
-            "INFO",
-            "[opencode_session_header] 已修改请求头：将注入 "
-            f"{self.header_name}={uuid_str} (来源={source}, sid={sid or '<缺失>'}, endpoint={endpoint})",
-        )
 
     # ------------------------------------------------------------------ #
     # 命令：/oc-session
